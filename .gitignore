@@ -69,6 +69,23 @@ web_modules/
 .env
 .env.*
 !.env.example
+!**/.env.example
+!**/.env.local.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# ML artifacts generated locally or from Colab
+models/*.npz
+models/*.pkl
+models/ranker_metadata.json
+training/exports/
+!models/.gitkeep
+!models/food_concepts.json
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

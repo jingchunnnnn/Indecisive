@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}
+      - FRONTEND_ORIGIN=http://localhost:3000
+      - ENV=development
+      - ENABLE_SEMANTIC_RANKING=true
+      - ENABLE_TRAINED_RANKER=false
+      - MODEL_ARTIFACT_DIR=/app/models
+
+  web:
+    working_dir: /app/apps/web
+    image: node:22-alpine
+    command: sh -c "npm install && npm run dev"
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000

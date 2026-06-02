@@ -1,0 +1,24 @@
+{
+  "concepts": [
+    { "term": "dessert", "description": "sweet food such as cake, waffles, ice cream, and bingsu" },
+    { "term": "ice cream", "description": "cold sweet dessert" },
+    { "term": "bingsu", "description": "cold shaved ice dessert" },
+    { "term": "cake", "description": "sweet baked dessert" },
+    { "term": "waffles", "description": "sweet cafe dessert" },
+    { "term": "bubble tea", "description": "sweet milk tea drink with pearls" },
+    { "term": "cafe", "description": "coffee, pastry, brunch, quiet seating" },
+    { "term": "coffee", "description": "cafe drink for study and snacks" },
+    { "term": "mala", "description": "spicy sichuan food" },
+    { "term": "thai food", "description": "spicy and savory meal" },
+    { "term": "korean food", "description": "savory spicy food" },
+    { "term": "ramen", "description": "comforting noodle soup" },
+    { "term": "soup", "description": "warm comforting light food" },
+    { "term": "rice bowl", "description": "filling savory meal" },
+    { "term": "salad", "description": "healthy light meal" },
+    { "term": "poke bowl", "description": "healthy light bowl" },
+    { "term": "hawker", "description": "budget casual local food" },
+    { "term": "food court", "description": "budget casual food stalls" },
+    { "term": "hotpot", "description": "group meal with soup and shared food" },
+    { "term": "smoothie", "description": "cold refreshing drink" }
+  ]
+}
