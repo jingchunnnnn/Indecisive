@@ -78,6 +78,7 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+*.egg-info/
 
 # ML artifacts generated locally or from Colab
 models/*.npz
