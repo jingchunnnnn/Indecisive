@@ -60,9 +60,19 @@ export function CravingSurvey() {
     survey.constraints.length > 0 ||
     survey.remarks.trim().length > 0;
 
-  async function submitSurvey() {
+  async function submitSurvey({ allowEmptyRemarks = false }: { allowEmptyRemarks?: boolean } = {}) {
+    if (currentStep < TOTAL_STEPS) {
+      goNext();
+      return;
+    }
+
     if (!hasInput) {
       setError("Pick at least one craving option or add a little note.");
+      return;
+    }
+
+    if (!allowEmptyRemarks && !survey.remarks.trim()) {
+      setError("Add a note or skip this step.");
       return;
     }
 
@@ -233,14 +243,27 @@ export function CravingSurvey() {
               <ArrowRight className="h-5 w-5" aria-hidden="true" />
             </button>
           ) : (
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-coral to-melon px-5 py-3 text-base font-black text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Search className="h-5 w-5" aria-hidden="true" />
-              Find food
-            </button>
+            <>
+              {!survey.remarks.trim() ? (
+                <button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => void submitSurvey({ allowEmptyRemarks: true })}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-rose-100 bg-white/85 px-5 py-3 text-base font-black text-cocoa shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Skip note
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </button>
+              ) : null}
+              <button
+                type="submit"
+                disabled={isLoading || !survey.remarks.trim()}
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-coral to-melon px-5 py-3 text-base font-black text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Search className="h-5 w-5" aria-hidden="true" />
+                Find food
+              </button>
+            </>
           )}
         </div>
 
