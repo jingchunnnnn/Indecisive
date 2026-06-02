@@ -1,13 +1,12 @@
 "use client";
 
 import type { Recommendation } from "@/lib/types";
-import { ExternalLink, Heart, MapPin, ThumbsDown } from "lucide-react";
-import Link from "next/link";
+import { ExternalLink, MapPin, ThumbsDown, ThumbsUp } from "lucide-react";
 
 type Props = {
   recommendation: Recommendation;
-  onSave: (recommendation: Recommendation) => void;
-  onReject: (recommendation: Recommendation) => void;
+  onGoodRecommendation: (recommendation: Recommendation) => void;
+  onBadRecommendation: (recommendation: Recommendation) => void;
 };
 
 function formatDistance(distance: number | null) {
@@ -24,7 +23,11 @@ function formatType(type: string) {
   return type.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export function RecommendationCard({ recommendation, onSave, onReject }: Props) {
+export function RecommendationCard({
+  recommendation,
+  onGoodRecommendation,
+  onBadRecommendation
+}: Props) {
   const percent = Math.round(recommendation.score * 100);
 
   return (
@@ -57,8 +60,6 @@ export function RecommendationCard({ recommendation, onSave, onReject }: Props) 
         ))}
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-stone-700">{recommendation.reason}</p>
-
       <div className="mt-5 flex flex-wrap gap-2">
         {recommendation.google_maps_uri ? (
           <a
@@ -71,27 +72,21 @@ export function RecommendationCard({ recommendation, onSave, onReject }: Props) 
             Open in Google Maps
           </a>
         ) : null}
-        <Link
-          href={`/place/${encodeURIComponent(recommendation.place_id)}`}
-          className="inline-flex min-h-10 items-center rounded-lg bg-white px-4 py-2 text-sm font-bold text-cocoa shadow-sm hover:bg-stone-50"
-        >
-          Details
-        </Link>
         <button
           type="button"
-          onClick={() => onSave(recommendation)}
-          className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100"
+          onClick={() => onGoodRecommendation(recommendation)}
+          className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-teal-50 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-teal-100"
         >
-          <Heart className="h-4 w-4" aria-hidden="true" />
-          Save
+          <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+          Good recommendation
         </button>
         <button
           type="button"
-          onClick={() => onReject(recommendation)}
+          onClick={() => onBadRecommendation(recommendation)}
           className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-stone-100 px-4 py-2 text-sm font-bold text-stone-700 hover:bg-stone-200"
         >
           <ThumbsDown className="h-4 w-4" aria-hidden="true" />
-          Not for me
+          Bad recommendation
         </button>
       </div>
     </article>

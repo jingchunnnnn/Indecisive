@@ -49,6 +49,9 @@ class RecommendationRanker:
         scored: list[ScoredPlace] = []
         for candidate in candidates:
             distance_m = self._distance(candidate, request_lat, request_lng)
+            if distance_m is not None and distance_m > radius_m:
+                continue
+
             candidate_text = text_blob(
                 candidate.name,
                 candidate.address,
@@ -127,9 +130,6 @@ class RecommendationRanker:
 
         score -= negative_penalty(negative_terms, candidate_text)
         score += self._place_id_preference(candidate, user_preferences)
-        if distance_m is not None and distance_m > radius_m:
-            overflow = min(1.0, (distance_m - radius_m) / max(radius_m, 1))
-            score -= 0.2 + (0.2 * overflow)
         return score
 
     def _cuisine_score(self, cuisine_terms: list[str], candidate_text: str) -> float:

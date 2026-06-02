@@ -2,7 +2,6 @@
 
 import { EmptyState } from "@/components/EmptyState";
 import { RecommendationCard } from "@/components/RecommendationCard";
-import { ResultSummary } from "@/components/ResultSummary";
 import { LATEST_REQUEST_KEY, LATEST_RESULTS_KEY } from "@/lib/constants";
 import { rejectRecommendation, saveRecommendation } from "@/lib/localPreferences";
 import { sendFeedback } from "@/lib/api";
@@ -48,16 +47,16 @@ export default function ResultsPage() {
     };
   }
 
-  function onSave(recommendation: Recommendation) {
+  function onGoodRecommendation(recommendation: Recommendation) {
     saveRecommendation(recommendation);
     void sendFeedback(recommendation, "liked", feedbackContext(recommendation)).catch(() => undefined);
-    showToast("Saved for next time.");
+    showToast("Thanks. We'll learn from that.");
   }
 
-  function onReject(recommendation: Recommendation) {
+  function onBadRecommendation(recommendation: Recommendation) {
     rejectRecommendation(recommendation);
     void sendFeedback(recommendation, "not_for_me", feedbackContext(recommendation)).catch(() => undefined);
-    showToast("Got it. We'll nudge away from similar places.");
+    showToast("Got it. We'll rank similar places lower.");
   }
 
   if (!loaded) {
@@ -99,15 +98,13 @@ export default function ResultsPage() {
         </section>
 
         <div className="space-y-5">
-          <ResultSummary interpreted={response.interpreted_craving} />
-
           {response.recommendations.length ? (
             response.recommendations.map((recommendation) => (
               <RecommendationCard
                 key={recommendation.place_id}
                 recommendation={recommendation}
-                onSave={onSave}
-                onReject={onReject}
+                onGoodRecommendation={onGoodRecommendation}
+                onBadRecommendation={onBadRecommendation}
               />
             ))
           ) : (

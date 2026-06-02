@@ -27,6 +27,15 @@ def test_nearby_candidate_scores_higher_than_far_candidate():
     ranked = rank(candidates)
 
     assert ranked[0].place.place_id == "near"
+    assert all(item.distance_m is None or item.distance_m <= 2000 for item in ranked)
+
+
+def test_candidates_outside_radius_are_excluded():
+    candidates = [
+        PlaceCandidate("far", None, "Dessert Far", None, 1.35, 103.85, ["dessert"]),
+    ]
+
+    assert rank(candidates) == []
 
 
 def test_dessert_candidate_ranks_high_for_sweet_dessert_query():
