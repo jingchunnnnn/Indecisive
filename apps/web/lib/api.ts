@@ -44,14 +44,26 @@ export async function fetchPlaceDetails(placeId: string): Promise<PlaceDetails> 
 
 export async function sendFeedback(
   recommendation: Pick<Recommendation, "place_id" | "types">,
-  action: "liked" | "not_for_me"
+  action: "liked" | "not_for_me",
+  context?: {
+    request?: RecommendRequest;
+    rank?: number;
+    score?: number;
+    distance_m?: number | null;
+    reason?: string;
+  }
 ) {
   return requestJson<{ status: string }>("/feedback", {
     method: "POST",
     body: JSON.stringify({
       place_id: recommendation.place_id,
       action,
-      types: recommendation.types
+      types: recommendation.types,
+      rank: context?.rank,
+      score: context?.score,
+      distance_m: context?.distance_m,
+      reason: context?.reason,
+      request: context?.request
     })
   });
 }

@@ -33,18 +33,34 @@ def _extract_remark_terms(remarks: str) -> list[str]:
     for keyword, expansions in REMARK_KEYWORDS.items():
         if keyword in text:
             terms.extend(expansions)
+    terms.extend(_extract_known_food_terms(remarks))
+    return terms
+
+
+def _extract_known_food_terms(remarks: str) -> list[str]:
+    text = f" {remarks.lower()} "
+    ignored_terms = {"food", "restaurant", "cafe"}
+    terms: list[str] = []
+
+    for term in all_known_terms():
+        normalized = term.lower()
+        if normalized in ignored_terms:
+            continue
+        escaped = re.escape(normalized)
+        if re.search(rf"(?<!\w){escaped}(?!\w)", text):
+            terms.append(normalized)
     return terms
 
 
 def _extract_negative_terms(remarks: str) -> list[str]:
     text = f" {remarks.lower()} "
     negatives: list[str] = []
-    known_terms = all_known_terms()
+    known_terms = [*all_known_terms(), "oily", "greasy"]
 
     for term in known_terms:
         escaped = re.escape(term)
         for hint in NEGATIVE_HINTS:
-            pattern = rf"\b{hint}\s+(?:any\s+|too\s+much\s+|more\s+)?{escaped}\b"
+            pattern = rf"\b{hint}\s+(?:any\s+|too\s+|too\s+much\s+|more\s+)?{escaped}\b"
             if re.search(pattern, text):
                 negatives.append(term)
                 break

@@ -45,3 +45,20 @@ def test_cuisine_expands_to_search_terms():
     assert "japanese food" in parsed.positive_terms
     assert "ramen" in parsed.positive_terms
     assert parsed.search_query.startswith("japanese food")
+
+
+def test_remarks_extract_explicit_dish_and_cuisine_terms():
+    parsed = parse_craving([], [], [], [], "i feel like sushi or donburi")
+
+    assert "sushi" in parsed.positive_terms
+    assert "donburi" in parsed.positive_terms
+    assert "japanese food" in parsed.positive_terms
+
+
+def test_remarks_not_oily_adds_light_terms_and_negative_oily():
+    parsed = parse_craving([], [], [], [], "something cozy but not too oily, maybe noodles")
+
+    assert "quiet cafe" in parsed.positive_terms
+    assert "noodles" in parsed.positive_terms
+    assert "oily" in parsed.negative_terms
+    assert "oily" not in parsed.positive_terms

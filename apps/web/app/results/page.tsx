@@ -3,16 +3,17 @@
 import { EmptyState } from "@/components/EmptyState";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { ResultSummary } from "@/components/ResultSummary";
-import { LATEST_RESULTS_KEY } from "@/lib/constants";
+import { LATEST_REQUEST_KEY, LATEST_RESULTS_KEY } from "@/lib/constants";
 import { rejectRecommendation, saveRecommendation } from "@/lib/localPreferences";
 import { sendFeedback } from "@/lib/api";
-import type { RecommendResponse, Recommendation } from "@/lib/types";
+import type { RecommendRequest, RecommendResponse, Recommendation } from "@/lib/types";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function ResultsPage() {
   const [response, setResponse] = useState<RecommendResponse | null>(null);
+  const [request, setRequest] = useState<RecommendRequest | undefined>();
   const [loaded, setLoaded] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -21,6 +22,10 @@ export default function ResultsPage() {
       const raw = window.sessionStorage.getItem(LATEST_RESULTS_KEY);
       if (raw) {
         setResponse(JSON.parse(raw) as RecommendResponse);
+      }
+      const requestRaw = window.sessionStorage.getItem(LATEST_REQUEST_KEY);
+      if (requestRaw) {
+        setRequest(JSON.parse(requestRaw) as RecommendRequest);
       }
     } finally {
       setLoaded(true);
@@ -32,15 +37,26 @@ export default function ResultsPage() {
     window.setTimeout(() => setToast(null), 2400);
   }
 
+  function feedbackContext(recommendation: Recommendation) {
+    const rank = response?.recommendations.findIndex((item) => item.place_id === recommendation.place_id) ?? -1;
+    return {
+      request,
+      rank: rank >= 0 ? rank + 1 : undefined,
+      score: recommendation.score,
+      distance_m: recommendation.distance_m,
+      reason: recommendation.reason
+    };
+  }
+
   function onSave(recommendation: Recommendation) {
     saveRecommendation(recommendation);
-    void sendFeedback(recommendation, "liked").catch(() => undefined);
+    void sendFeedback(recommendation, "liked", feedbackContext(recommendation)).catch(() => undefined);
     showToast("Saved for next time.");
   }
 
   function onReject(recommendation: Recommendation) {
     rejectRecommendation(recommendation);
-    void sendFeedback(recommendation, "not_for_me").catch(() => undefined);
+    void sendFeedback(recommendation, "not_for_me", feedbackContext(recommendation)).catch(() => undefined);
     showToast("Got it. We'll nudge away from similar places.");
   }
 

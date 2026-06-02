@@ -8,6 +8,7 @@ from app.core.config import Settings, get_settings
 from app.schemas.requests import FeedbackRequest, RecommendRequest
 from app.schemas.responses import InterpretedCraving, Recommendation, RecommendResponse, StatusResponse
 from app.services.craving_parser import parse_craving
+from app.services.feedback_logger import FeedbackLogger
 from app.services.google_places import GooglePlacesProvider
 from app.services.providers import PlacesProvider, PlacesProviderError
 from app.services.ranker import RecommendationRanker
@@ -94,5 +95,9 @@ async def recommend(
 
 
 @router.post("/feedback", response_model=StatusResponse)
-async def feedback(payload: FeedbackRequest) -> StatusResponse:
+async def feedback(
+    payload: FeedbackRequest,
+    settings: Settings = Depends(get_settings),
+) -> StatusResponse:
+    FeedbackLogger(settings.resolved_feedback_log_path).append(payload)
     return StatusResponse(status="ok")

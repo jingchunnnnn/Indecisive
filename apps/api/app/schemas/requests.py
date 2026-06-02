@@ -78,6 +78,11 @@ class FeedbackRequest(BaseModel):
     place_id: str = Field(min_length=1, max_length=200)
     action: Literal["liked", "disliked", "not_for_me"]
     types: list[str] = Field(default_factory=list)
+    rank: int | None = Field(default=None, ge=1, le=50)
+    score: float | None = Field(default=None, ge=0.0, le=1.0)
+    distance_m: float | None = Field(default=None, ge=0.0)
+    reason: str | None = Field(default=None, max_length=500)
+    request: RecommendRequest | None = None
 
 
 class PlaceDetailsPath(BaseModel):

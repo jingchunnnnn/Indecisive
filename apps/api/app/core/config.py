@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     enable_semantic_ranking: bool = Field(default=True, alias="ENABLE_SEMANTIC_RANKING")
     enable_trained_ranker: bool = Field(default=False, alias="ENABLE_TRAINED_RANKER")
     model_artifact_dir: str = Field(default="../../models", alias="MODEL_ARTIFACT_DIR")
+    feedback_log_path: str = Field(default="../../data/feedback.jsonl", alias="FEEDBACK_LOG_PATH")
     google_timeout_s: float = 8.0
 
     @property
@@ -30,6 +31,17 @@ class Settings(BaseSettings):
             return cwd_path
         repo_root = Path(__file__).resolve().parents[4]
         return (repo_root / "models").resolve()
+
+    @property
+    def resolved_feedback_log_path(self) -> Path:
+        path = Path(self.feedback_log_path)
+        if path.is_absolute():
+            return path
+        cwd_path = (Path.cwd() / path).resolve()
+        if cwd_path.parent.exists():
+            return cwd_path
+        repo_root = Path(__file__).resolve().parents[4]
+        return (repo_root / "data" / "feedback.jsonl").resolve()
 
 
 @lru_cache
