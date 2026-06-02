@@ -31,6 +31,7 @@ async def recommend(
 ) -> RecommendResponse:
     parsed = parse_craving(
         moods=request.survey.moods,
+        cuisines=request.survey.cuisines,
         place_types=request.survey.place_types,
         constraints=request.survey.constraints,
         remarks=request.remarks,
@@ -59,11 +60,14 @@ async def recommend(
         request_lng=request.location.lng,
         radius_m=request.survey.radius_m,
         user_preferences=request.user_preferences,
+        cuisine_terms=parsed.cuisine_terms,
     )
 
     return RecommendResponse(
         interpreted_craving=InterpretedCraving(
             moods=parsed.moods,
+            cuisines=parsed.cuisines,
+            cuisine_terms=parsed.cuisine_terms,
             positive_terms=parsed.positive_terms,
             negative_terms=parsed.negative_terms,
             search_query=parsed.search_query,

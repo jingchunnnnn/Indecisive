@@ -1,6 +1,7 @@
 "use client";
 
 import { ConstraintChips } from "@/components/ConstraintChips";
+import { CuisineChips } from "@/components/CuisineChips";
 import { ErrorState } from "@/components/ErrorState";
 import { LoadingState } from "@/components/LoadingState";
 import { MoodChips } from "@/components/MoodChips";
@@ -10,6 +11,7 @@ import { RemarksBox } from "@/components/RemarksBox";
 import { fetchRecommendations } from "@/lib/api";
 import {
   CONSTRAINT_OPTIONS,
+  CUISINE_OPTIONS,
   LATEST_REQUEST_KEY,
   LATEST_RESULTS_KEY,
   MOOD_OPTIONS,
@@ -25,6 +27,7 @@ import { FormEvent, useState } from "react";
 
 type SurveyState = {
   moods: string[];
+  cuisines: string[];
   placeTypes: string[];
   constraints: string[];
   radiusM: number;
@@ -33,11 +36,14 @@ type SurveyState = {
 
 const initialSurvey: SurveyState = {
   moods: [],
+  cuisines: [],
   placeTypes: [],
   constraints: [],
   radiusM: 2000,
   remarks: ""
 };
+
+const TOTAL_STEPS = 6;
 
 export function CravingSurvey() {
   const router = useRouter();
@@ -49,6 +55,7 @@ export function CravingSurvey() {
 
   const hasInput =
     survey.moods.length > 0 ||
+    survey.cuisines.length > 0 ||
     survey.placeTypes.length > 0 ||
     survey.constraints.length > 0 ||
     survey.remarks.trim().length > 0;
@@ -68,6 +75,7 @@ export function CravingSurvey() {
       const payload: RecommendRequest = {
         survey: {
           moods: survey.moods,
+          cuisines: survey.cuisines,
           place_types: survey.placeTypes,
           constraints: survey.constraints,
           radius_m: survey.radiusM
@@ -109,15 +117,20 @@ export function CravingSurvey() {
       setError("Pick at least one food mood.");
       return;
     }
-    if (currentStep === 2 && survey.placeTypes.length === 0) {
+    if (currentStep === 2 && survey.cuisines.length === 0) {
+      setError("Pick a cuisine or choose Anything works.");
+      return;
+    }
+    if (currentStep === 3 && survey.placeTypes.length === 0) {
       setError("Pick at least one place type.");
       return;
     }
-    setCurrentStep((step) => Math.min(5, step + 1));
+    setCurrentStep((step) => Math.min(TOTAL_STEPS, step + 1));
   }
 
   const stepTitle = [
     "What kind of food mood are you in?",
+    "Any cuisine you're craving?",
     "What kind of place sounds good?",
     "Any deal-breakers?",
     "How far are you willing to go?",
@@ -132,12 +145,12 @@ export function CravingSurvey() {
       <div className="mb-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <span className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-black uppercase tracking-normal text-coral ring-1 ring-rose-100">
-            Step {currentStep} of 5
+            Step {currentStep} of {TOTAL_STEPS}
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-rose-50 ring-1 ring-rose-100">
             <div
               className="h-full rounded-full bg-gradient-to-r from-coral to-melon transition-all"
-              style={{ width: `${(currentStep / 5) * 100}%` }}
+              style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
             />
           </div>
         </div>
@@ -155,13 +168,17 @@ export function CravingSurvey() {
           ) : null}
 
           {currentStep === 2 ? (
+            <CuisineChips value={survey.cuisines} onChange={(cuisines) => setSurvey({ ...survey, cuisines })} />
+          ) : null}
+
+          {currentStep === 3 ? (
             <PlaceTypeChips
               value={survey.placeTypes}
               onChange={(placeTypes) => setSurvey({ ...survey, placeTypes })}
             />
           ) : null}
 
-          {currentStep === 3 ? (
+          {currentStep === 4 ? (
             <div className="space-y-4">
               <ConstraintChips
                 value={survey.constraints}
@@ -171,7 +188,7 @@ export function CravingSurvey() {
                 type="button"
                 onClick={() => {
                   setSurvey({ ...survey, constraints: [] });
-                  setCurrentStep(4);
+                  setCurrentStep(5);
                 }}
                 className="rounded-lg border border-rose-100 bg-white/85 px-4 py-2 text-sm font-black text-stone-700 shadow-sm hover:bg-rose-50"
               >
@@ -180,11 +197,11 @@ export function CravingSurvey() {
             </div>
           ) : null}
 
-          {currentStep === 4 ? (
+          {currentStep === 5 ? (
             <RadiusSelector value={survey.radiusM} onChange={(radiusM) => setSurvey({ ...survey, radiusM })} />
           ) : null}
 
-          {currentStep === 5 ? (
+          {currentStep === 6 ? (
             <RemarksBox value={survey.remarks} onChange={(remarks) => setSurvey({ ...survey, remarks })} />
           ) : null}
         </section>
@@ -206,7 +223,7 @@ export function CravingSurvey() {
             </button>
           ) : null}
 
-          {currentStep < 5 ? (
+          {currentStep < TOTAL_STEPS ? (
             <button
               type="button"
               onClick={goNext}
@@ -260,16 +277,21 @@ function AnswerSummary({
     },
     {
       step: 2,
+      label: "Cuisine",
+      value: labelsFor(survey.cuisines, CUISINE_OPTIONS)
+    },
+    {
+      step: 3,
       label: "Place",
       value: labelsFor(survey.placeTypes, PLACE_TYPE_OPTIONS)
     },
     {
-      step: 3,
+      step: 4,
       label: "Deals",
       value: survey.constraints.length ? labelsFor(survey.constraints, CONSTRAINT_OPTIONS) : "None"
     },
     {
-      step: 4,
+      step: 5,
       label: "Distance",
       value: RADIUS_OPTIONS.find((option) => option.value === survey.radiusM)?.label || `${survey.radiusM}m`
     }

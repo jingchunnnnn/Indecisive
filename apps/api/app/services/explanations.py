@@ -10,6 +10,7 @@ def build_reason(
     place: PlaceCandidate,
     moods: list[str],
     positive_terms: list[str],
+    cuisine_terms: list[str],
     semantic_score: float | None,
     distance_m: float | None,
     radius_m: int,
@@ -24,7 +25,13 @@ def build_reason(
     else:
         pieces.append("is a good nearby fallback option")
 
-    matched_focus = _matched_focus(place_text, positive_terms, place)
+    cuisine_focus = _matched_focus(place_text, cuisine_terms, place)
+    if cuisine_focus:
+        pieces.append("matches your cuisine pick")
+
+    cuisine_lookup = {term.lower() for term in cuisine_terms}
+    non_cuisine_terms = [term for term in positive_terms if term.lower() not in cuisine_lookup]
+    matched_focus = _matched_focus(place_text, non_cuisine_terms, place)
     if matched_focus:
         pieces.append(matched_focus)
 

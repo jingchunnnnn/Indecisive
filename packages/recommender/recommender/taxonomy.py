@@ -26,6 +26,20 @@ PLACE_TYPE_TO_TERMS = {
     "group_meal": ["restaurant", "hotpot", "bbq", "zi char"],
 }
 
+CUISINE_TO_TERMS = {
+    "any_cuisine": [],
+    "japanese": ["japanese", "japanese food", "sushi", "ramen", "donburi"],
+    "korean": ["korean", "korean food", "kimchi", "bbq", "bibimbap"],
+    "thai": ["thai", "thai food", "tom yum", "pad thai", "green curry"],
+    "chinese": ["chinese", "chinese food", "noodles", "dim sum", "zi char"],
+    "indian": ["indian", "indian food", "curry", "biryani", "prata"],
+    "malay": ["malay", "malay food", "nasi lemak", "satay", "mee rebus"],
+    "western": ["western", "western food", "burger", "steak", "pasta"],
+    "italian": ["italian", "italian food", "pasta", "pizza", "risotto"],
+    "mexican": ["mexican", "mexican food", "tacos", "burritos", "quesadilla"],
+    "local": ["local", "local food", "hawker", "chicken rice", "laksa"],
+}
+
 CONSTRAINT_TO_TERMS = {
     "halal_friendly": ["halal food", "halal restaurant"],
     "vegetarian_friendly": ["vegetarian food", "vegetarian restaurant"],
@@ -33,7 +47,6 @@ CONSTRAINT_TO_TERMS = {
     "takeaway": ["takeaway food", "quick bite"],
     "not_crowded": ["quiet cafe", "small restaurant"],
     "budget_friendly": ["cheap food", "hawker", "food court"],
-    "walking_distance": [],
     "open_now": [],
 }
 
@@ -67,7 +80,7 @@ def all_known_terms() -> list[str]:
     """Return a sorted list of known food terms and aliases."""
 
     terms: set[str] = set(REMARK_KEYWORDS.keys())
-    for mapping in (MOOD_TO_TERMS, PLACE_TYPE_TO_TERMS, CONSTRAINT_TO_TERMS):
+    for mapping in (MOOD_TO_TERMS, PLACE_TYPE_TO_TERMS, CUISINE_TO_TERMS, CONSTRAINT_TO_TERMS):
         for values in mapping.values():
             terms.update(values)
     for values in REMARK_KEYWORDS.values():

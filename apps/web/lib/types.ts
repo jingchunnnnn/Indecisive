@@ -1,6 +1,7 @@
 export type RecommendRequest = {
   survey: {
     moods: string[];
+    cuisines: string[];
     place_types: string[];
     constraints: string[];
     radius_m: number;
@@ -22,6 +23,8 @@ export type RecommendRequest = {
 export type RecommendResponse = {
   interpreted_craving: {
     moods: string[];
+    cuisines: string[];
+    cuisine_terms: string[];
     positive_terms: string[];
     negative_terms: string[];
     search_query: string;

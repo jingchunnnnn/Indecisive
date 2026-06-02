@@ -29,9 +29,22 @@ export const PLACE_TYPE_OPTIONS: ChipOption[] = [
   { label: "Group meal", value: "group_meal" }
 ];
 
+export const CUISINE_OPTIONS: ChipOption[] = [
+  { label: "Anything works", value: "any_cuisine" },
+  { label: "Japanese", value: "japanese" },
+  { label: "Korean", value: "korean" },
+  { label: "Thai", value: "thai" },
+  { label: "Chinese", value: "chinese" },
+  { label: "Indian", value: "indian" },
+  { label: "Malay", value: "malay" },
+  { label: "Western", value: "western" },
+  { label: "Italian", value: "italian" },
+  { label: "Mexican", value: "mexican" },
+  { label: "Local", value: "local" }
+];
+
 export const CONSTRAINT_OPTIONS: ChipOption[] = [
   { label: "Open now", value: "open_now" },
-  { label: "Within walking distance", value: "walking_distance" },
   { label: "Budget-friendly", value: "budget_friendly" },
   { label: "Halal", value: "halal_friendly" },
   { label: "Vegetarian-friendly", value: "vegetarian_friendly" },

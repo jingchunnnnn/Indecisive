@@ -12,6 +12,7 @@ from app.services.providers import PlaceCandidate
 from app.services.semantic_ranker import SemanticRanker
 from app.services.trained_ranker import TrainedRanker
 from recommender.distance import haversine_distance_m
+from recommender.query_expansion import unique_terms
 from recommender.scoring import distance_score, negative_penalty, term_match_score, text_blob
 
 
@@ -43,6 +44,7 @@ class RecommendationRanker:
         request_lng: float,
         radius_m: int,
         user_preferences: UserPreferencesRequest,
+        cuisine_terms: list[str] | None = None,
     ) -> list[ScoredPlace]:
         scored: list[ScoredPlace] = []
         for candidate in candidates:
@@ -63,6 +65,7 @@ class RecommendationRanker:
                 candidate=candidate,
                 candidate_text=candidate_text,
                 positive_terms=positive_terms,
+                cuisine_terms=cuisine_terms or [],
                 negative_terms=negative_terms,
                 distance_m=distance_m,
                 radius_m=radius_m,
@@ -79,6 +82,7 @@ class RecommendationRanker:
                 place=candidate,
                 moods=moods,
                 positive_terms=positive_terms,
+                cuisine_terms=cuisine_terms or [],
                 semantic_score=semantic_score,
                 distance_m=distance_m,
                 radius_m=radius_m,
@@ -101,6 +105,7 @@ class RecommendationRanker:
         candidate: PlaceCandidate,
         candidate_text: str,
         positive_terms: list[str],
+        cuisine_terms: list[str],
         negative_terms: list[str],
         distance_m: float | None,
         radius_m: int,
@@ -108,9 +113,14 @@ class RecommendationRanker:
         semantic_score: float | None,
     ) -> float:
         keyword_score = term_match_score(positive_terms, candidate_text)
+        cuisine_score = self._cuisine_score(cuisine_terms, candidate_text)
         proximity_score = distance_score(distance_m, radius_m)
         preference_score = self._preference_score(candidate, user_preferences)
         score = 0.2 + (0.42 * keyword_score) + (0.28 * proximity_score) + preference_score
+        if cuisine_terms:
+            score += 0.26 * cuisine_score
+            if cuisine_score == 0:
+                score -= 0.22
 
         if semantic_score is not None:
             score += (semantic_score - 0.5) * 0.28
@@ -121,6 +131,19 @@ class RecommendationRanker:
             overflow = min(1.0, (distance_m - radius_m) / max(radius_m, 1))
             score -= 0.2 + (0.2 * overflow)
         return score
+
+    def _cuisine_score(self, cuisine_terms: list[str], candidate_text: str) -> float:
+        terms = unique_terms(cuisine_terms)
+        if not terms:
+            return 0.0
+        for term in terms:
+            if term in candidate_text:
+                return 1.0
+        for term in terms:
+            words = [word for word in term.split() if len(word) > 3 and word != "food"]
+            if any(word in candidate_text for word in words):
+                return 0.45
+        return 0.0
 
     def _preference_score(self, candidate: PlaceCandidate, prefs: UserPreferencesRequest) -> float:
         candidate_types = {item.lower() for item in candidate.types}

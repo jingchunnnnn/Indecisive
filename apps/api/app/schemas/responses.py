@@ -11,6 +11,8 @@ class HealthResponse(BaseModel):
 
 class InterpretedCraving(BaseModel):
     moods: list[str] = Field(default_factory=list)
+    cuisines: list[str] = Field(default_factory=list)
+    cuisine_terms: list[str] = Field(default_factory=list)
     positive_terms: list[str] = Field(default_factory=list)
     negative_terms: list[str] = Field(default_factory=list)
     search_query: str

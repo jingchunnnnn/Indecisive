@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from recommender.query_expansion import build_search_query, remove_negative_terms, unique_terms
 from recommender.taxonomy import (
     CONSTRAINT_TO_TERMS,
+    CUISINE_TO_TERMS,
     MOOD_TO_TERMS,
     NEGATIVE_HINTS,
     PLACE_TYPE_TO_TERMS,
@@ -19,6 +20,8 @@ from recommender.taxonomy import (
 @dataclass(frozen=True)
 class ParsedCraving:
     moods: list[str]
+    cuisines: list[str]
+    cuisine_terms: list[str]
     positive_terms: list[str]
     negative_terms: list[str]
     search_query: str
@@ -61,16 +64,23 @@ def _extract_negative_terms(remarks: str) -> list[str]:
 
 def parse_craving(
     moods: list[str],
+    cuisines: list[str],
     place_types: list[str],
     constraints: list[str],
     remarks: str,
     disliked_terms: list[str] | None = None,
 ) -> ParsedCraving:
     known_moods = [mood for mood in moods if mood in MOOD_TO_TERMS]
+    known_cuisines = [cuisine for cuisine in cuisines if cuisine in CUISINE_TO_TERMS]
     known_place_types = [place_type for place_type in place_types if place_type in PLACE_TYPE_TO_TERMS]
     known_constraints = [constraint for constraint in constraints if constraint in CONSTRAINT_TO_TERMS]
 
+    cuisine_terms: list[str] = []
+    for cuisine in known_cuisines:
+        cuisine_terms.extend(CUISINE_TO_TERMS[cuisine])
+
     positive_terms: list[str] = []
+    positive_terms.extend([term for term in cuisine_terms if term not in known_cuisines])
     for mood in known_moods:
         positive_terms.extend(MOOD_TO_TERMS[mood])
     for place_type in known_place_types:
@@ -85,6 +95,8 @@ def parse_craving(
 
     return ParsedCraving(
         moods=known_moods,
+        cuisines=known_cuisines,
+        cuisine_terms=unique_terms(cuisine_terms),
         positive_terms=positive_terms,
         negative_terms=negative_terms,
         search_query=search_query,

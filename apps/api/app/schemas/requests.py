@@ -9,11 +9,12 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 class SurveyRequest(BaseModel):
     moods: list[str] = Field(default_factory=list)
+    cuisines: list[str] = Field(default_factory=list)
     place_types: list[str] = Field(default_factory=list)
     constraints: list[str] = Field(default_factory=list)
     radius_m: int = Field(default=2000, ge=100, le=50000)
 
-    @field_validator("moods", "place_types", "constraints", mode="before")
+    @field_validator("moods", "cuisines", "place_types", "constraints", mode="before")
     @classmethod
     def default_lists(cls, value: object) -> list[str]:
         if value is None:
@@ -64,6 +65,7 @@ class RecommendRequest(BaseModel):
     def reject_empty_request(self) -> "RecommendRequest":
         if not (
             self.survey.moods
+            or self.survey.cuisines
             or self.survey.place_types
             or self.survey.constraints
             or self.remarks.strip()

@@ -73,3 +73,25 @@ def test_liked_types_increase_score():
     ranked = rank(candidates, ["dessert"], prefs=prefs)
 
     assert ranked[0].place.place_id == "cafe"
+
+
+def test_selected_cuisine_is_stricter_than_generic_mood_match():
+    settings = Settings(ENABLE_SEMANTIC_RANKING=False, ENABLE_TRAINED_RANKER=False)
+    candidates = [
+        PlaceCandidate("dessert", None, "Sweet Dessert Cafe", None, 1.3001, 103.8001, ["dessert", "cafe"]),
+        PlaceCandidate("sushi", None, "Sushi Table", None, 1.3001, 103.8001, ["restaurant"]),
+    ]
+
+    ranked = RecommendationRanker(settings).rank(
+        candidates=candidates,
+        positive_terms=["japanese", "japanese food", "sushi", "sweet", "dessert", "cake"],
+        negative_terms=[],
+        moods=["sweet"],
+        request_lat=1.3,
+        request_lng=103.8,
+        radius_m=2000,
+        user_preferences=UserPreferencesRequest(),
+        cuisine_terms=["japanese", "japanese food", "sushi"],
+    )
+
+    assert ranked[0].place.place_id == "sushi"
