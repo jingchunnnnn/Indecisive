@@ -5,6 +5,7 @@ import { ExternalLink, MapPin, ThumbsDown, ThumbsUp } from "lucide-react";
 
 type Props = {
   recommendation: Recommendation;
+  feedbackChoice?: "good" | "bad";
   onGoodRecommendation: (recommendation: Recommendation) => void;
   onBadRecommendation: (recommendation: Recommendation) => void;
 };
@@ -25,10 +26,12 @@ function formatType(type: string) {
 
 export function RecommendationCard({
   recommendation,
+  feedbackChoice,
   onGoodRecommendation,
   onBadRecommendation
 }: Props) {
   const percent = Math.round(recommendation.score * 100);
+  const hasFeedback = Boolean(feedbackChoice);
 
   return (
     <article className="rounded-lg border border-white/75 bg-white/90 p-5 shadow-soft">
@@ -74,16 +77,34 @@ export function RecommendationCard({
         ) : null}
         <button
           type="button"
+          aria-pressed={feedbackChoice === "good"}
+          disabled={hasFeedback}
           onClick={() => onGoodRecommendation(recommendation)}
-          className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-teal-50 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-teal-100"
+          className={[
+            "inline-flex min-h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition",
+            feedbackChoice === "good"
+              ? "bg-teal-600 text-white shadow-sm"
+              : "bg-teal-50 text-teal-800 hover:bg-teal-100",
+            feedbackChoice === "bad" ? "cursor-not-allowed opacity-45" : "",
+            feedbackChoice === "good" ? "cursor-default" : ""
+          ].join(" ")}
         >
           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
           Good recommendation
         </button>
         <button
           type="button"
+          aria-pressed={feedbackChoice === "bad"}
+          disabled={hasFeedback}
           onClick={() => onBadRecommendation(recommendation)}
-          className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-stone-100 px-4 py-2 text-sm font-bold text-stone-700 hover:bg-stone-200"
+          className={[
+            "inline-flex min-h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition",
+            feedbackChoice === "bad"
+              ? "bg-cocoa text-white shadow-sm"
+              : "bg-stone-100 text-stone-700 hover:bg-stone-200",
+            feedbackChoice === "good" ? "cursor-not-allowed opacity-45" : "",
+            feedbackChoice === "bad" ? "cursor-default" : ""
+          ].join(" ")}
         >
           <ThumbsDown className="h-4 w-4" aria-hidden="true" />
           Bad recommendation

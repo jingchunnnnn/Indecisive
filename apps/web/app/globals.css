@@ -102,3 +102,17 @@ textarea:focus-visible {
     font-size: 3.7rem;
   }
 }
+
+@keyframes loading-slide {
+  0% {
+    transform: translateX(-105%);
+  }
+
+  50% {
+    transform: translateX(50%);
+  }
+
+  100% {
+    transform: translateX(205%);
+  }
+}

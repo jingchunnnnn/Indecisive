@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/components/EmptyState";
+import { LoadingState } from "@/components/LoadingState";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { LATEST_REQUEST_KEY, LATEST_RESULTS_KEY } from "@/lib/constants";
 import { rejectRecommendation, saveRecommendation } from "@/lib/localPreferences";
@@ -13,6 +14,7 @@ import { useEffect, useState } from "react";
 export default function ResultsPage() {
   const [response, setResponse] = useState<RecommendResponse | null>(null);
   const [request, setRequest] = useState<RecommendRequest | undefined>();
+  const [feedbackChoices, setFeedbackChoices] = useState<Record<string, "good" | "bad">>({});
   const [loaded, setLoaded] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -48,19 +50,27 @@ export default function ResultsPage() {
   }
 
   function onGoodRecommendation(recommendation: Recommendation) {
+    if (feedbackChoices[recommendation.place_id]) {
+      return;
+    }
+    setFeedbackChoices((choices) => ({ ...choices, [recommendation.place_id]: "good" }));
     saveRecommendation(recommendation);
     void sendFeedback(recommendation, "liked", feedbackContext(recommendation)).catch(() => undefined);
     showToast("Thanks. We'll learn from that.");
   }
 
   function onBadRecommendation(recommendation: Recommendation) {
+    if (feedbackChoices[recommendation.place_id]) {
+      return;
+    }
+    setFeedbackChoices((choices) => ({ ...choices, [recommendation.place_id]: "bad" }));
     rejectRecommendation(recommendation);
     void sendFeedback(recommendation, "not_for_me", feedbackContext(recommendation)).catch(() => undefined);
     showToast("Got it. We'll rank similar places lower.");
   }
 
   if (!loaded) {
-    return <main className="min-h-screen px-4 py-8" />;
+    return <LoadingState />;
   }
 
   if (!response) {
@@ -103,6 +113,7 @@ export default function ResultsPage() {
               <RecommendationCard
                 key={recommendation.place_id}
                 recommendation={recommendation}
+                feedbackChoice={feedbackChoices[recommendation.place_id]}
                 onGoodRecommendation={onGoodRecommendation}
                 onBadRecommendation={onBadRecommendation}
               />
