@@ -31,7 +31,6 @@ export function RecommendationCard({
   onBadRecommendation
 }: Props) {
   const percent = Math.round(recommendation.score * 100);
-  const hasFeedback = Boolean(feedbackChoice);
 
   return (
     <article className="rounded-lg border border-white/75 bg-white/90 p-5 shadow-soft">
@@ -78,7 +77,7 @@ export function RecommendationCard({
         <button
           type="button"
           aria-pressed={feedbackChoice === "good"}
-          disabled={hasFeedback}
+          disabled={feedbackChoice === "bad"}
           onClick={() => onGoodRecommendation(recommendation)}
           className={[
             "inline-flex min-h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition",
@@ -86,7 +85,7 @@ export function RecommendationCard({
               ? "bg-teal-600 text-white shadow-sm"
               : "bg-teal-50 text-teal-800 hover:bg-teal-100",
             feedbackChoice === "bad" ? "cursor-not-allowed opacity-45" : "",
-            feedbackChoice === "good" ? "cursor-default" : ""
+            feedbackChoice === "good" ? "hover:bg-teal-700" : ""
           ].join(" ")}
         >
           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
@@ -95,7 +94,7 @@ export function RecommendationCard({
         <button
           type="button"
           aria-pressed={feedbackChoice === "bad"}
-          disabled={hasFeedback}
+          disabled={feedbackChoice === "good"}
           onClick={() => onBadRecommendation(recommendation)}
           className={[
             "inline-flex min-h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition",
@@ -103,7 +102,7 @@ export function RecommendationCard({
               ? "bg-cocoa text-white shadow-sm"
               : "bg-stone-100 text-stone-700 hover:bg-stone-200",
             feedbackChoice === "good" ? "cursor-not-allowed opacity-45" : "",
-            feedbackChoice === "bad" ? "cursor-default" : ""
+            feedbackChoice === "bad" ? "hover:bg-stone-800" : ""
           ].join(" ")}
         >
           <ThumbsDown className="h-4 w-4" aria-hidden="true" />

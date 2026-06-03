@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { LoadingState } from "@/components/LoadingState";
 import { RecommendationCard } from "@/components/RecommendationCard";
 import { LATEST_REQUEST_KEY, LATEST_RESULTS_KEY } from "@/lib/constants";
-import { rejectRecommendation, saveRecommendation } from "@/lib/localPreferences";
+import { clearRecommendationFeedback, rejectRecommendation, saveRecommendation } from "@/lib/localPreferences";
 import { sendFeedback } from "@/lib/api";
 import type { RecommendRequest, RecommendResponse, Recommendation } from "@/lib/types";
 import { ArrowLeft, RotateCcw } from "lucide-react";
@@ -50,7 +50,17 @@ export default function ResultsPage() {
   }
 
   function onGoodRecommendation(recommendation: Recommendation) {
-    if (feedbackChoices[recommendation.place_id]) {
+    if (feedbackChoices[recommendation.place_id] === "good") {
+      setFeedbackChoices((choices) => {
+        const nextChoices = { ...choices };
+        delete nextChoices[recommendation.place_id];
+        return nextChoices;
+      });
+      clearRecommendationFeedback(recommendation);
+      showToast("Feedback cleared.");
+      return;
+    }
+    if (feedbackChoices[recommendation.place_id] === "bad") {
       return;
     }
     setFeedbackChoices((choices) => ({ ...choices, [recommendation.place_id]: "good" }));
@@ -60,7 +70,17 @@ export default function ResultsPage() {
   }
 
   function onBadRecommendation(recommendation: Recommendation) {
-    if (feedbackChoices[recommendation.place_id]) {
+    if (feedbackChoices[recommendation.place_id] === "bad") {
+      setFeedbackChoices((choices) => {
+        const nextChoices = { ...choices };
+        delete nextChoices[recommendation.place_id];
+        return nextChoices;
+      });
+      clearRecommendationFeedback(recommendation);
+      showToast("Feedback cleared.");
+      return;
+    }
+    if (feedbackChoices[recommendation.place_id] === "good") {
       return;
     }
     setFeedbackChoices((choices) => ({ ...choices, [recommendation.place_id]: "bad" }));

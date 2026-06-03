@@ -57,7 +57,9 @@ export function saveRecommendation(recommendation: Recommendation) {
   saveLocalPreferences({
     ...preferences,
     liked_place_ids: unique([...preferences.liked_place_ids, recommendation.place_id]),
-    liked_types: unique([...preferences.liked_types, ...recommendation.types])
+    disliked_place_ids: preferences.disliked_place_ids.filter((placeId) => placeId !== recommendation.place_id),
+    liked_types: unique([...preferences.liked_types, ...recommendation.types]),
+    disliked_types: preferences.disliked_types.filter((type) => !recommendation.types.includes(type))
   });
 }
 
@@ -65,8 +67,21 @@ export function rejectRecommendation(recommendation: Recommendation) {
   const preferences = getLocalPreferences();
   saveLocalPreferences({
     ...preferences,
+    liked_place_ids: preferences.liked_place_ids.filter((placeId) => placeId !== recommendation.place_id),
     disliked_place_ids: unique([...preferences.disliked_place_ids, recommendation.place_id]),
+    liked_types: preferences.liked_types.filter((type) => !recommendation.types.includes(type)),
     disliked_types: unique([...preferences.disliked_types, ...recommendation.types])
+  });
+}
+
+export function clearRecommendationFeedback(recommendation: Recommendation) {
+  const preferences = getLocalPreferences();
+  saveLocalPreferences({
+    ...preferences,
+    liked_place_ids: preferences.liked_place_ids.filter((placeId) => placeId !== recommendation.place_id),
+    disliked_place_ids: preferences.disliked_place_ids.filter((placeId) => placeId !== recommendation.place_id),
+    liked_types: preferences.liked_types.filter((type) => !recommendation.types.includes(type)),
+    disliked_types: preferences.disliked_types.filter((type) => !recommendation.types.includes(type))
   });
 }
 

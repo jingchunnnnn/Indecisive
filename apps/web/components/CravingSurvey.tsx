@@ -21,7 +21,7 @@ import {
 import { requestBrowserLocation } from "@/lib/geolocation";
 import { getLocalPreferences, resetLocalPreferences } from "@/lib/localPreferences";
 import type { RecommendRequest } from "@/lib/types";
-import { ArrowLeft, ArrowRight, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChefHat, Search, Sparkles, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -49,6 +49,7 @@ export function CravingSurvey() {
   const router = useRouter();
   const [survey, setSurvey] = useState<SurveyState>(initialSurvey);
   const [currentStep, setCurrentStep] = useState(1);
+  const [hasStarted, setHasStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preferencesReset, setPreferencesReset] = useState(false);
@@ -152,6 +153,10 @@ export function CravingSurvey() {
       onSubmit={onSubmit}
       className="rounded-lg border border-white/75 bg-white/92 p-4 shadow-soft backdrop-blur sm:p-5"
     >
+      {!hasStarted ? (
+        <StartScreen onStart={() => setHasStarted(true)} />
+      ) : (
+        <>
       <div className="mb-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <span className="rounded-full bg-rose-50 px-3 py-1.5 text-xs font-black uppercase tracking-normal text-coral ring-1 ring-rose-100">
@@ -279,7 +284,46 @@ export function CravingSurvey() {
           {preferencesReset ? <span>Preferences reset.</span> : null}
         </div>
       </div>
+        </>
+      )}
     </form>
+  );
+}
+
+function StartScreen({ onStart }: { onStart: () => void }) {
+  return (
+    <section className="flex min-h-[28rem] flex-col items-center justify-center rounded-lg border border-rose-100 bg-white/55 px-5 py-8 text-center shadow-sm shadow-rose-100/30">
+      <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-rose-50 ring-1 ring-rose-100">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
+          <ChefHat className="h-8 w-8 text-coral" aria-hidden="true" />
+        </div>
+      </div>
+
+      <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1 text-xs font-black uppercase tracking-normal text-coral ring-1 ring-rose-100">
+        <Sparkles className="h-4 w-4" aria-hidden="true" />
+        Tiny taste quest
+      </div>
+
+      <h2 className="max-w-sm text-3xl font-black leading-tight text-cocoa sm:text-4xl">
+        Let&apos;s decode your craving.
+      </h2>
+      <p className="mt-3 max-w-sm text-sm font-medium leading-6 text-stone-600 sm:text-base">
+        A few quick picks, then we&apos;ll turn your mood into nearby food ideas.
+      </p>
+
+      <button
+        type="button"
+        onClick={onStart}
+        className="mt-7 inline-flex min-h-12 w-full max-w-xs items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-coral to-melon px-5 py-3 text-base font-black text-white shadow-lg shadow-rose-200 transition hover:-translate-y-0.5"
+      >
+        Begin the craving hunt
+        <ArrowRight className="h-5 w-5" aria-hidden="true" />
+      </button>
+
+      <p className="mt-4 text-xs font-bold uppercase tracking-normal text-stone-500">
+        Six tiny choices. One less dinner debate.
+      </p>
+    </section>
   );
 }
 
